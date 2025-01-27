@@ -6,6 +6,8 @@ import Auth from '@/Auth.vue'
 import Index from '@/Index.vue';
 import Boutique from '@/Boutique.vue';
 import Transfert from '@/Transfert.vue';
+import Dashboard from '@/Dashboard.vue';
+import Pannier from '@/Pannier.vue';
 //import NotFoundPage from './page/NotFoundPage'
 
 const router = createRouter({
@@ -16,9 +18,34 @@ const router = createRouter({
     {path: '/page2',name: 'page2',component: page2,},
     {path: '/Authentification',name:'Authentification',component:Auth},
     {path: '/Boutique',name:'Boutique',component:Boutique},
-    {path: '/Transfert',name:'Transfert',component:Transfert}
+    {path: '/Pannier',name:'Pannier',component:Pannier},
+    // {path: '/Index',name:'Index',component:Index},
+    {path: '/Transfert',name:'Transfert',component:Transfert},
+    { 
+      path: '/Dashboard',
+      name:'Dashboard',
+      component:Dashboard ,
+      meta: { requiresAuth: true, roles: ["admin"] },
+      // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
+    }
     //{path: '/:pathMatch(.*)*',component:NotFoundPage}
   ],
 })
+
+
+// Garde globale pour les routes
+router.beforeEach((to, from, next) => {
+  const user = JSON.parse(localStorage.getItem('user')); // Récupère l'utilisateur depuis le localStorage
+  if (to.meta.requiresAdmin) {
+    if (user && user.role === 'admin') {
+      next(); // Autorisé
+    } else {
+      alert('Accès refusé. Vous devez être administrateur pour accéder à cette page.');
+      next({ name: 'Authentification' }); // Redirige vers la page d'authentification
+    }
+  } else {
+    next(); // Aucune restriction
+  }
+});
 
 export default router

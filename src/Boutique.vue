@@ -17,6 +17,7 @@
                 <!-- <li><a href="#features">Features</a></li> -->
                 <li> <RouterLink  :to="{name:'Boutique'}"> <a >Boutique</a></RouterLink></li>
                 <li> <RouterLink  :to="{name:'Transfert'}"> <a >Transfert</a></RouterLink></li>
+                <li> <RouterLink  :to="{name:'Pannier'}"> <a>Panier</a></RouterLink></li>
                 <!--<li><a href="TA.html">Transfert</a></li>-->
                 <!-- <li><a href="#team">Team</a></li> -->
                 <li><a href="#contact">Contact</a></li>
@@ -25,6 +26,7 @@
                     <ul>
                         <li> <RouterLink  :to="{name:'Authentification'}"> <a >Inscription</a></RouterLink></li>
                         <li> <RouterLink  :to="{name:'Authentification'}"> <a >Connexion</a></RouterLink></li>
+                      
             
                     </ul>
                 </li>
@@ -75,33 +77,41 @@
 
             
             <section id="portfolio" class="portfolio section">
-        <div class="container section-title" data-aos="fade-up">
-          <h2>Boutique</h2>
-          <p>Nos produits</p>
-        </div>
-        <div class="container">
-          <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">
-            <div
-              v-for="produit in produits"
-              :key="produit.id"
-              class="col-lg-4 col-md-6 isotope-item">
+                <div class="container section-title" data-aos="fade-up">
+                    <h2>Boutique</h2>
+                    <p>Nos produits</p>
+                    </div>
+                    <div class="container">
+                    <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">
+                        <div
+                            v-for="produit in produits"
+                            :key="produit.id"
+                            class="col-lg-4 col-md-6 isotope-item">
 
-              <img :src="`http://127.0.0.1:8000/storage/${produit.image_path}?v=${Date.now()}`" :alt="produit.name" />
-             
+                            <img  class="portfolio-image"
+                                :src="`http://127.0.0.1:8000/storage/${produit.image_path}?v=${Date.now()}`" 
+                                :alt="produit.name"
+                                
+                            />
+                            
+                            <div class="portfolio-info">
+                                <h4>{{ produit.name }}</h4>
+                                <p>{{ produit.description }}</p>
+                                <p>Prix : {{ produit.price }} Fcfa</p>
+                                 <!-- Bouton de commande affiché uniquement si l'utilisateur n'est pas connecté -->
+                                <RouterLink v-if="!isAuthenticated" :to="{ name: 'Authentification' }">
+                                    <button type="button">Commandez</button>
+                                </RouterLink>
 
-
-              <div class="portfolio-info">
-                <h4>{{ produit.name }}</h4>
-                <p>{{ produit.description }}</p>
-                <p>Prix : {{ produit.price }} €</p>
-                <RouterLink :to="{ name: 'Authentification' }">
-                  <button type="button">Commandez</button>
-                </RouterLink>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+                                <!-- Message ou autre élément pour les utilisateurs connectés -->
+                                <div v-else>
+                                    <button type="button" @click="addProductToCart(produit)">Ajouter au panier</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
             
             <!-- Contact Section -->
             <section id="contact" class="contact section">
@@ -240,32 +250,77 @@
 </template>
 
 <script>
+import { ref, onMounted } from "vue";
 import axios from "axios";
+import { useCartStore } from "@/stores/cartStore"; // Assurez-vous que le chemin du store est correct
 
 export default {
   name: "Boutique",
-  data() {
-    return {
-      produits: [],
+  setup() {
+    const produits = ref([]); // Liste des produits
+    const isAuthenticated = ref(false); // Statut d'authentification
+    const errorMessage = ref(""); // Message d'erreur
+    const cartStore = useCartStore(); // Utilisation du store
+
+    // Vérifie si un utilisateur est connecté
+    const checkAuth = () => {
+      const userData = localStorage.getItem("user");
+      isAuthenticated.value = !!userData; // true si userData existe
     };
-  },
-  mounted() {
-    this.fetchProduits();
-  },
-  methods: {
-    async fetchProduits() {
+
+    // Récupération des produits depuis l'API
+    const fetchProduits = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/produits");
-        this.produits = response.data.produits;
+        produits.value = response.data.produits;
       } catch (error) {
         console.error("Erreur lors de la récupération des produits :", error);
+        errorMessage.value =
+          "Impossible de récupérer les produits. Veuillez réessayer plus tard.";
       }
-    },
+    };
+
+    // Ajout d'un produit au panier
+    const addProductToCart = (product) => {
+      const imageUrl = `http://127.0.0.1:8000/storage/${product.image_path}?v=${Date.now()}`;
+      cartStore.addToCart({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        image: imageUrl,
+      });
+      alert("Produit ajouté au panier !");
+    };
+
+    // Appels au montage du composant
+    onMounted(() => {
+      checkAuth();
+      fetchProduits();
+    });
+
+    return {
+      produits,
+      isAuthenticated,
+      errorMessage,
+      addProductToCart,
+    };
   },
 };
 </script>
 
+
+
 <style scoped>
+
+.portfolio-image {
+  width: 100%; /* Rend l'image responsive par rapport à son conteneur */
+  height: 200px; /* Fixe la hauteur pour une taille universelle */
+  object-fit: cover; /* Assure que l'image s'adapte à la taille sans déformation */
+  border-radius: 10px; /* Facultatif : pour un effet arrondi */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Facultatif : ajoute un léger ombrage */
+}
+
 .detail{
     width: 100%;
     margin: 10px ;

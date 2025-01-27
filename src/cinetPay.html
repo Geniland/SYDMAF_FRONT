@@ -1,0 +1,194 @@
+<template>
+  <div id="app">
+    <!-- Header -->
+    <header class="header fixed-top d-flex align-items-center heade">
+      <div class="container-fluid d-flex justify-content-between align-items-center">
+        <a href="index.html" class="d-flex align-items-center">
+          <img src="/lg.png" alt="logo" height="80" />
+        </a>
+        <nav class="navmenu">
+          <ul>
+            <li><RouterLink :to="{ name: 'Acceuil' }">Accueil</RouterLink></li>
+            <li><RouterLink :to="{ name: 'Acceuil' }">À propos</RouterLink></li>
+            <li><RouterLink :to="{ name: 'Boutique' }">Boutique</RouterLink></li>
+            <li><RouterLink :to="{ name: 'Transfert' }">Transfert</RouterLink></li>
+            <li v-if="user && user.role === 'admin'">
+              <RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink>
+            </li>
+            <li><a href="index.html">Contact</a></li>
+            <li class="dropdown">
+              <a href="#"><span>Authentification</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+              <ul>
+                <li><RouterLink :to="{ name: 'Authentification' }">Inscription</RouterLink></li>
+                <li><RouterLink :to="{ name: 'Authentification' }">Connexion</RouterLink></li>
+                <li v-if="isAuthenticated">
+                  <button @click="handleLogout">Déconnexion</button>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div>
+        <h5 class="text-center">Liste de vos produits sélectionnés :</h5>
+        <div class="container">
+          <ul>
+            <li
+              v-for="item in cartItems"
+              :key="item.id"
+              class="li_class border-top border-2 border-success"
+            >
+              <div class="row align-items-center">
+                <img :src="item.image" alt="Produit" class="col-3" height="120" />
+                <div class="col-6">
+                  <h5 class="text-dark">{{ item.name }}</h5>
+                  <p class="text-dark">{{ item.description }}</p>
+                </div>
+                <div class="col-3">
+                  <h5 class="text-dark">{{ item.price }} FCFA</h5>
+                  <div class="d-flex justify-content-center align-items-center">
+                    <button class="btn btn-sm" @click="decreaseQuantity(item)">-</button>
+                    <input
+                      type="number"
+                      :value="item.quantity"
+                      @input="updateQuantity(item, $event.target.value)"
+                      class="form-control mx-2"
+                      style="width: 60px;"
+                    />
+                    <button class="btn btn-sm" @click="increaseQuantity(item)">+</button>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <div v-if="cartItems.length > 0" class="total-box shadow-lg">
+            <h5>Total :</h5>
+            <h4>{{ totalPrice }} FCFA</h4>
+            <button class="btn btn-success btn-block" id="pay-btn" @click="checkout">
+              Acheter
+            </button>
+          </div>
+          <div v-else class="text-center">
+            <p>Votre panier est vide.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</template>
+
+<script>
+import { useCartStore } from "@/stores/cartStore";
+import { computed, onMounted } from "vue";
+
+function loadCinetPayScript(callback) {
+  const script = document.createElement("script");
+  script.src = "https://cdn.cinetpay.com/seamless/main.js";
+  script.async = true;
+  script.onload = callback; // Appelé lorsque le script est chargé
+  document.body.appendChild(script);
+}
+
+export default {
+  setup() {
+    const cartStore = useCartStore();
+
+    const increaseQuantity = (item) => {
+      cartStore.updateQuantity(item.id, item.quantity + 1);
+    };
+
+    const decreaseQuantity = (item) => {
+      if (item.quantity > 1) {
+        cartStore.updateQuantity(item.id, item.quantity - 1);
+      } else {
+        cartStore.removeItem(item.id);
+      }
+    };
+
+    const totalPrice = computed(() => cartStore.totalPrice);
+
+    const checkout = () => {
+      if (typeof CinetPay !== "undefined") {
+        CinetPay.setConfig({
+          apikey: "1813636742678e77a5074159.85185115", // Remplacez par votre clé API
+          site_id: "105886044", // Remplacez par votre site ID
+          notify_url: "http://votre-site.com/notify/",
+          mode: "TEST", // Changez en "TEST" pour tester et PRODUCTION le vrais
+        });
+
+        CinetPay.getCheckout({
+          transaction_id: Math.floor(Math.random() * 100000000).toString(),
+          amount: totalPrice.value, // Utilisation dynamique du totalPrice
+          currency: "XOF",
+          channels: "ALL",
+          description: "Paiement des produits sélectionnés",
+          customer_name: "John", // À remplacer dynamiquement
+          customer_surname: "Doe",
+          customer_email: "johndoe@example.com",
+          customer_phone_number: "123456789",
+          customer_address: "Rue des clients",
+          customer_city: "Lomé",
+          customer_country: "TG",
+          customer_state: "Maritime",
+          customer_zip_code: "0024",
+        });
+
+        CinetPay.waitResponse((data) => {
+          if (data.status === "REFUSED") {
+            alert("Votre paiement a échoué.");
+          } else if (data.status === "ACCEPTED") {
+            alert("Votre paiement a été effectué avec succès !");
+          }
+        });
+
+        CinetPay.onError((data) => {
+          console.error("Erreur lors du paiement :", data);
+        });
+      } else {
+        console.error("CinetPay n'est pas défini. Assurez-vous que le script est chargé.");
+      }
+    };
+
+    onMounted(() => {
+      loadCinetPayScript(() => {
+        console.log("Script CinetPay chargé.");
+      });
+    });
+
+    return {
+      cartItems: cartStore.items,
+      totalPrice,
+      increaseQuantity,
+      decreaseQuantity,
+      checkout,
+    };
+  },
+};
+</script>
+
+<style scoped>
+.heade {
+  background-color: #1a7c1e;
+}
+.main {
+  margin-top: 100px;
+  text-align: center;
+}
+.li_class {
+  padding: 20px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+.total-box {
+  margin-top: 20px;
+  background-color: #4caf50;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+</style>

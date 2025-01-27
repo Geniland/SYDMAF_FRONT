@@ -16,17 +16,35 @@
                     <li><a href="#about">A propos</a></li>
                     <!-- <li><a href="#features">Features</a></li> -->
                     <li> <RouterLink  :to="{name:'Boutique'}"> <a >Boutique</a></RouterLink></li>
-                    <li><RouterLink  :to="{name:'Transfert'}"> <a>Transfert</a></RouterLink></li>
+                    <li> <RouterLink  :to="{name:'Transfert'}"> <a>Transfert</a></RouterLink></li>
+                    <li> <RouterLink  :to="{name:'Pannier'}"> <a>Panier</a></RouterLink></li>
+                   
+                    <li v-if="user && user.role === 'admin'">
+                    <RouterLink :to="{ name: 'Dashboard' }"><a>Dashboard</a></RouterLink>
+                    </li>
                     <!-- <li><a href="#team">Team</a></li> -->
                     <li><a href="#contact">Contact</a></li>
                     <!-- <li><a href="#pricing">Pricing</a></li> -->
                     <li class="dropdown"><a href="#"><span>Authentification</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                     <ul>
+                        <p class="NomUtilisateur">
+                            Mr/Mrs ,<strong >{{ userName() }}</strong>
+                        </p>
                         <li> <RouterLink  :to="{name:'Authentification'}"> <a >Inscription</a></RouterLink></li>
                         <li> <RouterLink  :to="{name:'Authentification'}"> <a >Connexion</a></RouterLink></li>
+                        <li v-if="isAuthenticated">
+                            <button @click="handleLogout">Déconnexion</button>
+                        </li>
                 
                     </ul>
                     </li>
+                    <!-- Icône de panier -->
+                    <!-- <li>
+                        <RouterLink :to="{ name: 'Pannier' }">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span class="badge">{{ cartItems.length }}</span>
+                        </RouterLink>
+                    </li> -->
                     
                 </ul>
                 <!--<i class="mobile-nav-toggle d-xl-none bi bi-list"></i>-->
@@ -615,19 +633,107 @@
 
         <!-- Preloader 
         <div id="preloader"></div>-->
-
-       
+    
 </body>
 
 
 </template>
 
+<script>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import axios from "axios";
 
-<script setup>
-    
+export default {
+  name: "Index",
+  setup() {
+    const router = useRouter();
+    const isAuthenticated = ref(false); // Statut d'authentification
+    const errorMessage = ref(""); // Message d'erreur
+    const user = ref(null); // Données utilisateur
+
+    // Vérifie si un utilisateur est connecté
+    const checkAuth = () => {
+      const userData = localStorage.getItem("user");
+      isAuthenticated.value = !!userData; // true si userData existe
+    };
+
+    // Récupère les données utilisateur depuis le localStorage
+    const fetchUser = () => {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        user.value = JSON.parse(userData);
+      }
+    };
+
+    // Renvoie le nom de l'utilisateur ou "Invité" par défaut
+    const userName = () => {
+      return user.value ? user.value.name : "Invité";
+    };
+
+    // Déconnexion de l'utilisateur
+    const handleLogout = async () => {
+      try {
+        // Appel à l'API pour déconnecter l'utilisateur
+        await axios.post("http://127.0.0.1:8000/api/logout");
+
+        // Suppression des données utilisateur
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+
+        // Réinitialisation de l'authentification
+        axios.defaults.headers.common["Authorization"] = "";
+        isAuthenticated.value = false;
+        user.value = null;
+
+        // Redirection vers la page d'accueil
+        router.push({ name: "Acceuil" });
+      } catch (error) {
+        console.error("Erreur lors de la déconnexion :", error);
+        errorMessage.value =
+          error.response?.data?.message || "Une erreur s'est produite.";
+      }
+    };
+
+    // Appeler fetchUser et checkAuth lors du montage
+    onMounted(() => {
+      fetchUser();
+      checkAuth();
+    });
+
+    return {
+      user,
+      isAuthenticated,
+      errorMessage,
+      handleLogout,
+      userName, // Expose userName pour affichage dans le template
+    };
+  },
+};
 </script>
 
+
 <style scoped>
+
+    /* .fa-shopping-cart {
+    font-size: 1.5rem;
+    color: #4caf50; 
+    }
+    .badge {
+    background-color: red;
+    color: white;
+    font-size: 0.8rem;
+    border-radius: 50%;
+    padding: 0.2rem 0.5rem;
+    position: relative;
+    top: -10px;
+    left: -5px;
+    } */
+
+    .NomUtilisateur{
+        color: #1a7c1e;
+    }
+
     .detail{
         width: 100%;
         margin: 10px ;
