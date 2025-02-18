@@ -16,7 +16,7 @@
             <li v-if="user && user.role === 'admin'">
               <RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink>
             </li>
-            <li><RouterLink :to="{ name: 'Acceuil' }">Contact</RouterLink></li>
+            <li><a href="index.html">Contact</a></li>
             <li class="dropdown">
               <a href="#"><span>Authentification</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
               <ul>
@@ -167,41 +167,5 @@ export default {
   color: white;
   padding: 20px;
   border-radius: 8px;
-}
-
-#header {
-  background-color: green;
-  padding: 15px 0;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.navmenu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  gap: 20px;
-}
-
-.navmenu li {
-  display: inline;
-}
-
-.navmenu a {
-  color: white;
-  font-size: 15px;
-  font-weight: bold;
-  text-decoration: none;
-  padding: 2px;
-  transition: color 0.3s ease;
-}
-
-.navmenu a:hover {
-  color: #d4edda;
 }
 </style>

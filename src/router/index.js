@@ -8,6 +8,8 @@ import Boutique from '@/Boutique.vue';
 import Transfert from '@/Transfert.vue';
 import Dashboard from '@/Dashboard.vue';
 import Pannier from '@/Pannier.vue';
+import TradeForm from '@/TradeForm.vue';
+import Categories from '@/Categories.vue';
 //import NotFoundPage from './page/NotFoundPage'
 
 const router = createRouter({
@@ -25,6 +27,22 @@ const router = createRouter({
       path: '/Dashboard',
       name:'Dashboard',
       component:Dashboard ,
+      meta: { requiresAuth: true, roles: ["admin"] },
+      // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
+    },
+
+    { 
+      path: '/Categories',
+      name:'Categories',
+      component:Categories ,
+      meta: { requiresAuth: true, roles: ["admin"] },
+      // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
+    },
+
+    { 
+      path: '/TradeForm',
+      name:'TradeForm',
+      component:TradeForm ,
       meta: { requiresAuth: true, roles: ["admin"] },
       // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
     }

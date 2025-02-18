@@ -13,17 +13,20 @@
                 <nav id="navmenu" class="navmenu">
                 <ul>
                     <li><a href="#hero" class="active">Accueil</a></li>
-                    <li><a href="#about">A propos</a></li>
+                    <li  v-if="user && user.role === 'user'"><a href="#about">A propos</a></li>
                     <!-- <li><a href="#features">Features</a></li> -->
                     <li> <RouterLink  :to="{name:'Boutique'}"> <a >Boutique</a></RouterLink></li>
-                    <li> <RouterLink  :to="{name:'Transfert'}"> <a>Transfert</a></RouterLink></li>
-                    <li> <RouterLink  :to="{name:'Pannier'}"> <a>Panier</a></RouterLink></li>
+                    <li  v-if="user && user.role === 'user'"> <RouterLink  :to="{name:'Transfert'}"> <a>Transfert</a></RouterLink></li>
+                    <li v-if="user && user.role === 'user'"> <RouterLink  :to="{name:'Pannier'}"> <a>Panier</a></RouterLink></li>
                    
                     <li v-if="user && user.role === 'admin'">
                     <RouterLink :to="{ name: 'Dashboard' }"><a>Dashboard</a></RouterLink>
                     </li>
+                    <li v-if="user && user.role === 'admin'">
+                        <RouterLink :to="{ name: 'Categories' }">categories</RouterLink>
+                    </li>
                     <!-- <li><a href="#team">Team</a></li> -->
-                    <li><a href="#contact">Contact</a></li>
+                    <li  v-if="user && user.role === 'user'"><a href="#contact">Contact</a></li>
                     <!-- <li><a href="#pricing">Pricing</a></li> -->
                     <li class="dropdown"><a href="#"><span>Authentification</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                     <ul>
@@ -715,20 +718,41 @@ export default {
 
 <style scoped>
 
-    /* .fa-shopping-cart {
-    font-size: 1.5rem;
-    color: #4caf50; 
-    }
-    .badge {
-    background-color: red;
-    color: white;
-    font-size: 0.8rem;
-    border-radius: 50%;
-    padding: 0.2rem 0.5rem;
-    position: relative;
-    top: -10px;
-    left: -5px;
-    } */
+#header {
+
+  padding: 15px 0;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navmenu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 20px;
+}
+
+.navmenu li {
+  display: inline;
+}
+
+.navmenu a {
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 2px;
+  transition: color 0.3s ease;
+}
+
+.navmenu a:hover {
+  color: #d4edda;
+}
 
     .NomUtilisateur{
         color: #1a7c1e;
