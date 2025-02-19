@@ -27,10 +27,9 @@ export const useCartStore = defineStore("cartStore", {
       }
     },
     removeItem(productId) {
-      this.$patch((state) => {
-        state.items = state.items.filter((item) => item.id !== productId);
-      });
+      this.items = this.items.filter(item => item.id !== productId);
     },
+    
     updateQuantity(productId, quantity) {
       const item = this.items.find((item) => item.id === productId);
       if (item) {

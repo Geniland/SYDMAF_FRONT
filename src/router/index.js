@@ -10,6 +10,7 @@ import Dashboard from '@/Dashboard.vue';
 import Pannier from '@/Pannier.vue';
 import TradeForm from '@/TradeForm.vue';
 import Categories from '@/Categories.vue';
+import Formulaire from '@/Formulaire.vue';
 //import NotFoundPage from './page/NotFoundPage'
 
 const router = createRouter({
@@ -20,6 +21,7 @@ const router = createRouter({
     {path: '/page2',name: 'page2',component: page2,},
     {path: '/Authentification',name:'Authentification',component:Auth},
     {path: '/Boutique',name:'Boutique',component:Boutique},
+    {path: '/Formulaire',name:'Formulaire',component:Formulaire},
     {path: '/Pannier',name:'Pannier',component:Pannier},
     // {path: '/Index',name:'Index',component:Index},
     {path: '/Transfert',name:'Transfert',component:Transfert},

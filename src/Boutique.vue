@@ -54,7 +54,7 @@
                     <button 
                         @click="fetchProduits()" 
                         class="btn btn-outline-secondary mx-2"
-                        :class="{ 'btn-secondary text-white': selectedCategory === null }">
+                        :class=" { 'btn-secondary text-white': selectedCategory === null }">
                         Tous
                     </button>
                     <button 
@@ -215,10 +215,11 @@ export default {
     }
     
 .portfolio-image {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 8px;
+    width: 65%;
+  height: 60%;
+
+  object-fit: cover;
+  margin-right: 15px;
 }
 
 .btn {
@@ -260,4 +261,7 @@ export default {
 .navmenu a:hover {
   color: #d4edda;
 }
+
+
+
 </style>

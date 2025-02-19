@@ -20,12 +20,19 @@
               </li>
               <li v-if="user && user.role === 'user'"><a href="#contact">Contact</a></li>
               <li class="dropdown">
-                <a href="#"><span>Authentification</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-                <ul>
-                  <li><RouterLink :to="{ name: 'Authentification' }">Inscription</RouterLink></li>
-                  <li><RouterLink :to="{ name: 'Authentification' }">Connexion</RouterLink></li>
-                </ul>
-              </li>
+                            <a href="#"><span>Authentification</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                            <ul>
+                                <p class="NomUtilisateur">
+                                    Mr/Mrs ,<strong >{{ userName() }}</strong>
+                                </p>
+                                <li> <RouterLink  :to="{name:'Authentification'}"> <a >Inscription</a></RouterLink></li>
+                                <li> <RouterLink  :to="{name:'Authentification'}"> <a >Connexion</a></RouterLink></li>
+                                <li v-if="isAuthenticated">
+                                    <button @click="handleLogout">Déconnexion</button>
+                                </li>
+                        
+                            </ul>
+                        </li>
             </ul>
           </nav>
         </div>

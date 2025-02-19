@@ -1,12 +1,12 @@
 <template>
   <div id="app">
     <!-- Header -->
-    <header class="header fixed-top d-flex align-items-center heade">
+    <header id="header" class="header fixed-top d-flex align-items-center heade">
       <div class="container-fluid d-flex justify-content-between align-items-center">
         <a href="index.html" class="d-flex align-items-center">
           <img src="/lg.png" alt="logo" height="80" />
         </a>
-        <nav class="navmenu">
+        <nav class="navmenu" id="navmenu">
           <ul>
             <li><RouterLink :to="{ name: 'Acceuil' }">Accueil</RouterLink></li>
             <li><RouterLink :to="{ name: 'Acceuil' }">À propos</RouterLink></li>
@@ -43,8 +43,9 @@
               :key="item.id"
               class="li_class border-top border-2 border-success"
             >
+              <button class="delete-btn" @click="removeItem(item.id)">❌</button>
               <div class="row align-items-center">
-                <img :src="item.image" alt="Produit" class="col-3" height="120" />
+                <img :src="`http://127.0.0.1:8000/storage/${item.image_path}`" alt="Produit" class="col-3" height="120" />
                 <div class="col-6">
                   <h5 class="text-dark">{{ item.name }}</h5>
                   <p class="text-dark">{{ item.description }}</p>
@@ -69,7 +70,19 @@
           <div v-if="cartItems.length > 0" class="total-box shadow-lg">
             <h5>Total :</h5>
             <h4>{{ totalPrice }} FCFA</h4>
-            <button class="btn btn-success btn-block" id="pay-btn">Acheter</button>
+            <button class="btn btn-success btn-block" id="pay-btn">Achat direct</button>
+            <RouterLink
+              :to="{
+                name: 'Formulaire',
+                query: {
+                  products: JSON.stringify(cartItems)
+                }
+              }"
+              class="btn btn-success btn-block"
+            >
+              Paiement à la livraison
+            </RouterLink>
+
           </div>
           <div v-else class="text-center">
             <p>Votre panier est vide.</p>
@@ -99,6 +112,11 @@ export default {
     const increaseQuantity = (item) => {
       cartStore.updateQuantity(item.id, item.quantity + 1);
     };
+
+    const removeItem = (itemId) => {
+      cartStore.removeItem(item.id);
+    };
+
 
     const decreaseQuantity = (item) => {
       if (item.quantity > 1) {
@@ -137,10 +155,11 @@ export default {
     });
 
     return {
-      cartItems: cartStore.items,
+      cartItems: computed(() => cartStore.items), // ✅ Assurer la réactivité
       totalPrice,
       increaseQuantity,
       decreaseQuantity,
+      removeItem: cartStore.removeItem, // ✅ Appel correct de la suppression
     };
   },
 };
@@ -148,60 +167,193 @@ export default {
 
 
 <style scoped>
-.heade {
-  background-color: #1a7c1e;
-}
-.main {
-  margin-top: 100px;
-  text-align: center;
-}
-.li_class {
-  padding: 20px;
-  margin-bottom: 10px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-}
-.total-box {
-  margin-top: 20px;
-  background-color: #4caf50;
-  color: white;
-  padding: 20px;
-  border-radius: 8px;
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: red;
+  transition: transform 0.2s ease-in-out;
 }
 
+.delete-btn:hover {
+  transform: scale(1.2);
+}
+
+
+.heade {
+  background-color: #1a7c1e;
+}.main {
+  margin-top: 120px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+
+
 #header {
-  background-color: green;
-  padding: 15px 0;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+padding: 15px 0;
+position: fixed;
+width: 100%;
+top: 0;
+left: 0;
+z-index: 1000;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .navmenu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  gap: 20px;
+list-style: none;
+padding: 0;
+margin: 0;
+display: flex;
+gap: 20px;
 }
 
 .navmenu li {
-  display: inline;
+display: inline;
 }
 
 .navmenu a {
-  color: white;
-  font-size: 15px;
-  font-weight: bold;
-  text-decoration: none;
-  padding: 2px;
-  transition: color 0.3s ease;
+color: white;
+font-size: 15px;
+font-weight: bold;
+text-decoration: none;
+padding: 2px;
+transition: color 0.3s ease;
 }
 
 .navmenu a:hover {
-  color: #d4edda;
+color: #d4edda;
 }
+
+h5.text-center {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1a7c1e;
+  margin-bottom: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+.li_class {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.li_class:hover {
+  transform: scale(1.02);
+}
+
+.li_class img {
+  width: 25%;
+  height: 10%;
+
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.li_class div {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.li_class h5 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.li_class p {
+  font-size: 14px;
+  color: #777;
+}
+
+.li_class .col-3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.li_class .col-3 h5 {
+  color: #1a7c1e;
+  font-weight: bold;
+}
+
+.d-flex button {
+  background-color: #1a7c1e;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+.d-flex button:hover {
+  background-color: #145a14;
+}
+
+.d-flex input {
+  text-align: center;
+  font-size: 16px;
+  width: 50px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.total-box {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #1a7c1e;
+  color: white;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.total-box h5 {
+  font-size: 20px;
+}
+
+.total-box h4 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.btn-success {
+  width: 100%;
+  font-size: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.btn-success:hover {
+  background-color: #145a14;
+}
+
+.text-center p {
+  font-size: 18px;
+  color: #777;
+}
+
 </style>

@@ -165,11 +165,11 @@ export default {
           const payload = { ...registerData.value };
 
           // Vérification pour le rôle admin
-          if (payload.secret_code === "ADMIN_SECRET_CODE") {
-            payload.role = "admin";
-          } else {
-            payload.role = "user";
-          }
+          // if (payload.secret_code === "ADMIN_SECRET_CODE") {
+          //   payload.role = "admin";
+          // } else {
+          //   payload.role = "user";
+          // }
           // delete payload.secretCode; // Ne pas envoyer le code au backend
 
           await axios.post("http://127.0.0.1:8000/api/register", payload);

@@ -55,6 +55,8 @@ import '/src/assets/css/main.css'
 
 const app = createApp(App)
 
+createApp(App).use(router).mount("#app");
+
 app.use(router)
 
 app.use(createPinia());
