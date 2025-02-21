@@ -18,11 +18,16 @@
               <li v-if="user && user.role === 'user'"><RouterLink :to="{ name: 'Transfert' }">Transfert</RouterLink></li>
               <li v-if="user && user.role === 'user'"><RouterLink :to="{ name: 'Pannier' }">Panier</RouterLink></li>
               <li v-if="user && user.role === 'admin'">
-                <RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink>
-              </li>
-              <li v-if="user && user.role === 'admin'">
                 <RouterLink :to="{ name: 'Categories' }">categories</RouterLink>
               </li>
+              <li v-if="user && user.role === 'admin'">
+                <RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink>
+              </li>
+
+              <li v-if="user && user.role === 'admin'">
+                <RouterLink :to="{ name: 'Commande' }">Commandes Effectuées</RouterLink>
+              </li>
+          
               <li v-if="user && user.role === 'user'"><a href="#contact">Contact</a></li>
               <li class="dropdown">
                 <a href="#"><span>Authentification</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
@@ -40,7 +45,7 @@
         <h1>Gestion des produits</h1>
 
         <!-- Formulaire pour ajouter ou modifier un produit -->
-        <form @submit.prevent="saveProduct" class="form-container">
+        <form @submit.prevent="saveProduct" class="form-container"  enctype="multipart/form-data">
           <div class="form-group">
             <label>Nom du produit :</label>
             <input type="text" v-model="productForm.name" required placeholder="Entrez le nom du produit" />
@@ -220,28 +225,42 @@ export default {
       }
     },
     async saveProduct() {
-      const formData = new FormData();
-      Object.entries(this.productForm).forEach(([key, value]) => {
+    const formData = new FormData();
+    Object.entries(this.productForm).forEach(([key, value]) => {
         formData.append(key, value);
-      });
-      try {
+    });
+
+    if (this.productForm.id) {
+        formData.append("_method", "PUT"); // Ajout de `_method=PUT`
+    }
+
+    console.log("Nom du produit envoyé :", formData.get("name"));
+
+    try {
         if (this.productForm.id) {
-          await axios.put(`http://127.0.0.1:8000/api/produits/${this.productForm.id}`, formData);
+            await axios.post(`http://127.0.0.1:8000/api/modification-produit/${this.productForm.id}`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
         } else {
-          await axios.post("http://127.0.0.1:8000/api/produits", formData);
+            await axios.post("http://127.0.0.1:8000/api/produits", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
         }
         this.fetchProducts();
         this.resetProductForm();
-      } catch (error) {
+    } catch (error) {
         console.error("Erreur lors de l'ajout/modification du produit :", error);
-      }
-    },
+    }
+},
+
+
     editProduct(product) {
       this.productForm = { ...product };
+      console.log("Produit sélectionné pour modification :", this.productForm);
     },
     deleteProduct(productId) {
       if (confirm('Voulez-vous vraiment supprimer ce produit ?')) {
-        axios.delete(`http://127.0.0.1:8000/api/produits/${productId}`).then(() => {
+        axios.delete(`http://127.0.0.1:8000/api/supp-produit/${productId}`).then(() => {
           this.fetchProducts();
         });
       }

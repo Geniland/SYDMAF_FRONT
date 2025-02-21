@@ -18,13 +18,16 @@
                     <li> <RouterLink  :to="{name:'Boutique'}"> <a >Boutique</a></RouterLink></li>
                     <li  v-if="user && user.role === 'user'"> <RouterLink  :to="{name:'Transfert'}"> <a>Transfert</a></RouterLink></li>
                     <li v-if="user && user.role === 'user'"> <RouterLink  :to="{name:'Pannier'}"> <a>Panier</a></RouterLink></li>
-                   
+                     <li v-if="user && user.role === 'admin'">
+                        <RouterLink :to="{ name: 'Categories' }">categories</RouterLink>
+                    </li>
                     <li v-if="user && user.role === 'admin'">
                     <RouterLink :to="{ name: 'Dashboard' }"><a>Dashboard</a></RouterLink>
                     </li>
                     <li v-if="user && user.role === 'admin'">
-                        <RouterLink :to="{ name: 'Categories' }">categories</RouterLink>
+                        <RouterLink :to="{ name: 'Commande' }">Commandes Effectuées</RouterLink>
                     </li>
+                  
                     <!-- <li><a href="#team">Team</a></li> -->
                     <li  v-if="user && user.role === 'user'"><a href="#contact">Contact</a></li>
                     <!-- <li><a href="#pricing">Pricing</a></li> -->
@@ -676,9 +679,19 @@ export default {
 
     // Déconnexion de l'utilisateur
     const handleLogout = async () => {
-      try {
-        // Appel à l'API pour déconnecter l'utilisateur
-        await axios.post("http://127.0.0.1:8000/api/logout");
+    try {
+        const token = localStorage.getItem("token");
+        
+        if (!token) {
+        console.warn("Aucun token trouvé, l'utilisateur est déjà déconnecté.");
+        return;
+        }
+
+        await axios.post("http://127.0.0.1:8000/api/logout", {}, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+        });
 
         // Suppression des données utilisateur
         localStorage.removeItem("user");
@@ -691,12 +704,13 @@ export default {
 
         // Redirection vers la page d'accueil
         router.push({ name: "Acceuil" });
-      } catch (error) {
+    } catch (error) {
         console.error("Erreur lors de la déconnexion :", error);
         errorMessage.value =
-          error.response?.data?.message || "Une erreur s'est produite.";
-      }
+        error.response?.data?.message || "Une erreur s'est produite.";
+    }
     };
+
 
     // Appeler fetchUser et checkAuth lors du montage
     onMounted(() => {

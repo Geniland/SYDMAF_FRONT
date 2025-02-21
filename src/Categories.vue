@@ -13,18 +13,21 @@
               <li v-if="user && user.role === 'user'"><RouterLink :to="{ name: 'Transfert' }">Transfert</RouterLink></li>
               <li v-if="user && user.role === 'user'"><RouterLink :to="{ name: 'Pannier' }">Panier</RouterLink></li>
               <li v-if="user && user.role === 'admin'">
+                <RouterLink :to="{ name: 'Categories' }">categories</RouterLink>
+              </li>
+              <li v-if="user && user.role === 'admin'">
                 <RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink>
               </li>
               <li v-if="user && user.role === 'admin'">
-                <RouterLink :to="{ name: 'Categories' }">categories</RouterLink>
-              </li>
+                        <RouterLink :to="{ name: 'Commande' }">Commandes Effectuées</RouterLink>
+                        </li>
               <li v-if="user && user.role === 'user'"><a href="#contact">Contact</a></li>
               <li class="dropdown">
                             <a href="#"><span>Authentification</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                             <ul>
-                                <p class="NomUtilisateur">
+                                <!-- <p class="NomUtilisateur">
                                     Mr/Mrs ,<strong >{{ userName() }}</strong>
-                                </p>
+                                </p> -->
                                 <li> <RouterLink  :to="{name:'Authentification'}"> <a >Inscription</a></RouterLink></li>
                                 <li> <RouterLink  :to="{name:'Authentification'}"> <a >Connexion</a></RouterLink></li>
                                 <li v-if="isAuthenticated">

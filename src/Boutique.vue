@@ -12,13 +12,18 @@
                         <li><RouterLink :to="{ name: 'Boutique' }">Boutique</RouterLink></li>
                         <li  v-if="user && user.role === 'user'"><RouterLink :to="{ name: 'Transfert' }">Transfert</RouterLink></li>
                         <li v-if="user && user.role === 'user'"><RouterLink :to="{ name: 'Pannier' }">Panier</RouterLink></li>
-                        <li v-if="user && user.role === 'admin'">
-                            <RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink>
-                        </li>
+
                         <li v-if="user && user.role === 'admin'">
                             <RouterLink :to="{ name: 'Categories' }">categories</RouterLink>
                         </li>
-                        <li  v-if="user && user.role === 'user'"><a href="#contact">Contact</a></li>
+                        <li v-if="user && user.role === 'admin'">
+                            <RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink>
+                        </li>
+                        
+                        <li v-if="user && user.role === 'admin'">
+                        <RouterLink :to="{ name: 'Commande' }">Commandes Effectuées</RouterLink>
+                        </li>
+                                <li  v-if="user && user.role === 'user'"><a href="#contact">Contact</a></li>
                         <li class="dropdown">
                             <a href="#"><span>Authentification</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                             <ul>

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Acceuil from '@/Acceuil.vue';
+// import Acceuil from '@/Acceuil.vue';
 import page1 from '@/page1.vue';
 import page2 from '@/page2.vue'
 import Auth from '@/Auth.vue'
@@ -11,6 +11,7 @@ import Pannier from '@/Pannier.vue';
 import TradeForm from '@/TradeForm.vue';
 import Categories from '@/Categories.vue';
 import Formulaire from '@/Formulaire.vue';
+import Commande from '@/Commande.vue';
 //import NotFoundPage from './page/NotFoundPage'
 
 const router = createRouter({
@@ -37,6 +38,14 @@ const router = createRouter({
       path: '/Categories',
       name:'Categories',
       component:Categories ,
+      meta: { requiresAuth: true, roles: ["admin"] },
+      // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
+    },
+
+    { 
+      path: '/Commande',
+      name:'Commande',
+      component:Commande ,
       meta: { requiresAuth: true, roles: ["admin"] },
       // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
     },

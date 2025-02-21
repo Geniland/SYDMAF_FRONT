@@ -38,5 +38,10 @@ export const useCartStore = defineStore("cartStore", {
         });
       }
     },
+
+    clearCart() {
+      this.items = []; // Réinitialise le tableau des articles du panier
+    },
+
   },
 });
