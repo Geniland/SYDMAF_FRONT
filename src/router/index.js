@@ -14,67 +14,68 @@ import Formulaire from '@/Formulaire.vue';
 import Commande from '@/Commande.vue';
 //import NotFoundPage from './page/NotFoundPage'
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {path: '/',name:'Acceuil',component:Index},
-    {path: '/page1/:id',name: 'page1',component: page1,},
-    {path: '/page2',name: 'page2',component: page2,},
-    {path: '/Authentification',name:'Authentification',component:Auth},
-    {path: '/Boutique',name:'Boutique',component:Boutique},
-    {path: '/Formulaire',name:'Formulaire',component:Formulaire},
-    {path: '/Pannier',name:'Pannier',component:Pannier},
-    // {path: '/Index',name:'Index',component:Index},
-    {path: '/Transfert',name:'Transfert',component:Transfert},
+const routes = [
+    { path: '/', name: 'Acceuil', component: Index },
+    { path: '/page1/:id', name: 'page1', component: page1 },
+    { path: '/page2', name: 'page2', component: page2 },
+    { path: '/Authentification', name: 'Authentification', component: Auth },
+    { path: '/Boutique', name: 'Boutique', component: Boutique },
+    { path: '/Formulaire', name: 'Formulaire', component: Formulaire },
+    { path: '/Pannier', name: 'Pannier', component: Pannier },
+    { path: '/Transfert', name: 'Transfert', component: Transfert },
+
+    // 🔒 Routes protégées (admin uniquement)
     { 
       path: '/Dashboard',
-      name:'Dashboard',
-      component:Dashboard ,
+      name: 'Dashboard',
+      component: Dashboard,
       meta: { requiresAuth: true, roles: ["admin"] },
-      // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
     },
-
     { 
       path: '/Categories',
-      name:'Categories',
-      component:Categories ,
+      name: 'Categories',
+      component: Categories,
       meta: { requiresAuth: true, roles: ["admin"] },
-      // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
     },
-
     { 
       path: '/Commande',
-      name:'Commande',
-      component:Commande ,
+      name: 'Commande',
+      component: Commande,
       meta: { requiresAuth: true, roles: ["admin"] },
-      // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
     },
-
     { 
       path: '/TradeForm',
-      name:'TradeForm',
-      component:TradeForm ,
+      name: 'TradeForm',
+      component: TradeForm,
       meta: { requiresAuth: true, roles: ["admin"] },
-      // meta: { requiresAdmin: true }, // Cette route nécessite un rôle d'admin
-    }
-    //{path: '/:pathMatch(.*)*',component:NotFoundPage}
-  ],
-})
+    },
+    // { path: '/:pathMatch(.*)*', component: NotFoundPage } // Pour gérer les erreurs 404
+];
 
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+});
 
-// Garde globale pour les routes
+// 🔐 Garde globale pour protéger les routes
 router.beforeEach((to, from, next) => {
-  const user = JSON.parse(localStorage.getItem('user')); // Récupère l'utilisateur depuis le localStorage
-  if (to.meta.requiresAdmin) {
-    if (user && user.role === 'admin') {
-      next(); // Autorisé
+  const user = JSON.parse(localStorage.getItem('user')); // Récupère l'utilisateur stocké
+  const isAuthenticated = !!user; // Vérifie s'il est connecté
+  const userRole = user?.role || '';
+
+  if (to.meta.requiresAuth) {
+    if (!isAuthenticated) {
+      alert("Vous devez être connecté pour accéder à cette page.");
+      next({ name: 'Authentification' }); // Redirection vers login
+    } else if (to.meta.roles && !to.meta.roles.includes(userRole)) {
+      alert("Accès refusé. Vous n'avez pas les permissions nécessaires.");
+      next('/'); // Redirection vers l'accueil si non autorisé
     } else {
-      alert('Accès refusé. Vous devez être administrateur pour accéder à cette page.');
-      next({ name: 'Authentification' }); // Redirige vers la page d'authentification
+      next(); // Autorisation accordée
     }
   } else {
     next(); // Aucune restriction
   }
 });
 
-export default router
+export default router;

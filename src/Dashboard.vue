@@ -21,7 +21,7 @@
                 <RouterLink :to="{ name: 'Categories' }">categories</RouterLink>
               </li>
               <li v-if="user && user.role === 'admin'">
-                <RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink>
+                <RouterLink :to="{ name: 'Dashboard' }">Produits</RouterLink>
               </li>
 
               <li v-if="user && user.role === 'admin'">
@@ -63,7 +63,14 @@
 
           <div class="form-group">
             <label>Image :</label>
-            <input type="file" @change="onFileChange" />
+
+              
+            <!-- Affichage de l'image existante si elle est disponible -->
+            <div v-if="imagePreview" class="portfolio-image">
+            <img :src="imagePreview" alt="Image du produit" class="portfolio-image">
+          </div>
+            
+            <input type="file" @change="onFileChange" :key="fileInputKey" />
           </div>
 
           <div class="form-group">
@@ -141,6 +148,8 @@ import axios from "axios";
 export default {
   data() {
     return {
+      imagePreview: null,
+      fileInputKey: Date.now(), // Clé unique pour forcer le rechargement
       user: null,
       isAuthenticated: false,
       categories: [],
@@ -256,6 +265,13 @@ export default {
 
     editProduct(product) {
       this.productForm = { ...product };
+
+      if (product.image && typeof product.image === 'string') {
+      this.imagePreview = 'http://127.0.0.1:8000/storage/' + product.image;
+      } else {
+          this.imagePreview = null;
+      }
+
       console.log("Produit sélectionné pour modification :", this.productForm);
     },
     deleteProduct(productId) {
@@ -274,17 +290,28 @@ export default {
         image: null,
         categories_id: "",
       };
+      this.imagePreview = null; // Réinitialiser l'aperçu de l'image
+      this.fileInputKey = Date.now(); // Générer une nouvelle clé pour recharger l'input file
     },
     onFileChange(event) {
       const file = event.target.files[0];
       if (file) {
-        this.productForm.image = file;
+          this.productForm.image = file;
+          this.imagePreview = URL.createObjectURL(file);
       }
     },
   },
 };
 </script>
 <style scoped>
+.portfolio-image {
+    width: 65%;
+  height: 60%;
+
+  object-fit: cover;
+  margin-right: 15px;
+}
+
 #header {
   background-color: green;
   padding: 15px 0;

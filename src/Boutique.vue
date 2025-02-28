@@ -17,7 +17,7 @@
                             <RouterLink :to="{ name: 'Categories' }">categories</RouterLink>
                         </li>
                         <li v-if="user && user.role === 'admin'">
-                            <RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink>
+                            <RouterLink :to="{ name: 'Dashboard' }">Produits</RouterLink>
                         </li>
                         
                         <li v-if="user && user.role === 'admin'">

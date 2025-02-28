@@ -129,18 +129,23 @@ export default {
     const totalPrice = computed(() => cartStore.totalPrice);
 
     const initializeFedaPay = () => {
-      if (typeof FedaPay !== "undefined") {
-        FedaPay.init("#pay-btn", {
-          public_key: "pk_live_ohAdmJUsB0GoCerrC4U9JafZ",
-          transaction: {
-            amount: totalPrice.value, // Utilisation dynamique du totalPrice
-            description: "Acheter mes produits",
-          },
-        });
-      } else {
-        console.error("FedaPay is not defined. Make sure the script is loaded.");
-      }
-    };
+    if (typeof FedaPay !== "undefined") {
+      // Construire la description avec la liste des produits
+      const productsDescription = cartStore.items
+        .map(item => `${item.name} (x${item.quantity}) - ${item.price} FCFA`)
+        .join(" | "); 
+
+      FedaPay.init("#pay-btn", {
+        public_key: "pk_live_ohAdmJUsB0GoCerrC4U9JafZ",
+        transaction: {
+          amount: totalPrice.value, // Utilisation dynamique du totalPrice
+          description: `Achat de produits : ${productsDescription}`,
+        },
+      });
+    } else {
+      console.error("FedaPay is not defined. Make sure the script is loaded.");
+    }
+  };
 
     onMounted(() => {
       loadFedaPayScript(() => {

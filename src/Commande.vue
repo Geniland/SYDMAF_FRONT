@@ -14,7 +14,7 @@
               <li v-if="user && user.role === 'user'"><RouterLink :to="{ name: 'Pannier' }">Panier</RouterLink></li>
   
               <li v-if="user && user.role === 'admin'"><RouterLink :to="{ name: 'Categories' }">Catégories</RouterLink></li>
-              <li v-if="user && user.role === 'admin'"><RouterLink :to="{ name: 'Dashboard' }">Dashboard</RouterLink></li>
+              <li v-if="user && user.role === 'admin'"><RouterLink :to="{ name: 'Dashboard' }">Produits</RouterLink></li>
               <li v-if="user && user.role === 'admin'"><RouterLink :to="{ name: 'Commande' }">Commandes Effectuées</RouterLink></li>
   
               <li v-if="user && user.role === 'user'"><a href="#contact">Contact</a></li>
@@ -38,7 +38,7 @@
         <div v-if="loading" class="loading">Chargement des commandes...</div>
         <div v-else>
           <div v-if="commandes.length > 0" class="commandes-list">
-            <div v-for="commande in commandes" :key="commande.id" class="commande-card">
+            <div v-for="commande in commandes.slice().reverse()" :key="commande.id" class="commande-card">
               <h3>{{ commande.name }}</h3>
               <p><strong>Adresse:</strong> {{ commande.address }}</p>
               <p><strong>Téléphone:</strong> {{ commande.phone }}</p>
