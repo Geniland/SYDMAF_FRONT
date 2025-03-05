@@ -42,65 +42,57 @@
                 </nav>
             </div>
         </header>
-
-        <main class="main">
-            <section id="hero" class="hero section dark-background">
+ <main class="main-container">
+        <!-- Section des Catégories -->
+        <section id="hero" class="hero section dark-background">
                 <img src="./assets/img/hero-bg-2.jpg" alt="" class="hero-bg">
-            </section>
+        </section>
+        <section class="categories-container">
+            <button 
+                @click="fetchProduits()" 
+                class="category-btn" 
+                :class="{ 'active': selectedCategory === null }">
+                Tous
+            </button>
+            <button 
+                v-for="categorie in categories" 
+                :key="categorie.id" 
+                @click="fetchProduitsByCategory(categorie.id)" 
+                class="category-btn" 
+                :class="{ 'active': selectedCategory === categorie.id }">
+                {{ categorie.name }}
+            </button>
+        </section>
 
-            <section id="portfolio" class="portfolio section">
-                <div class="container section-title" data-aos="fade-up">
-                    <h2>Boutique</h2>
-                    <p>Nos produits</p>
+        <!-- Section des Produits -->
+        <section class="products-grid">
+            <div v-for="produit in produits" :key="produit.id" class="product-card">
+                <img 
+                    class="product-image" 
+                    :src="`http://127.0.0.1:8000/storage/${produit.image_path}`" 
+                    :alt="produit.name"
+                    @click="openImageModal(produit)"
+                    onerror="this.onerror=null; this.src='/default-image.jpg';"/>
+                <div class="product-info">
+                    <h4>{{ produit.name }}</h4>
+                    <p class="description">{{ produit.description }}</p>
+                    <p class="price">{{ produit.price }} Fcfa</p>
+                    <button v-if="isAuthenticated" @click="addProductToCart(produit)" class="btn-add">Ajouter au panier</button>
+                    <RouterLink v-else :to="{ name: 'Authentification' }" class="btn-login">Se connecter</RouterLink>
                 </div>
+            </div>
+            <p v-if="produits.length === 0" class="no-products">Aucun produit trouvé.</p>
 
-                <!-- Menu des catégories -->
-                <div class="container text-center mb-4">
-                    <button 
-                        @click="fetchProduits()" 
-                        class="btn btn-outline-secondary mx-2"
-                        :class=" { 'btn-secondary text-white': selectedCategory === null }">
-                        Tous
-                    </button>
-                    <button 
-                        v-for="categorie in categories" 
-                        :key="categorie.id" 
-                        @click="fetchProduitsByCategory(categorie.id)"
-                        class="btn btn-outline-primary mx-2"
-                        :class="{ 'btn-primary text-white': selectedCategory === categorie.id }">
-                        {{ categorie.name }}
-                    </button>
-                </div>
-
-                <div class="container">
-                    <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">
-                        <div
-                            v-for="produit in produits"
-                            :key="produit.id"
-                            class="col-lg-4 col-md-6 isotope-item">
-                            <img 
-                                class="portfolio-image"
-                                :src="`http://127.0.0.1:8000/storage/${produit.image_path}`" 
-                                :alt="produit.name"
-                                onerror="this.onerror=null; this.src='/default-image.jpg';"
-                            />
-                            <div class="portfolio-info">
-                                <h4>{{ produit.name }}</h4>
-                                <p>{{ produit.description }}</p>
-                                <p>Prix : {{ produit.price }} Fcfa</p>
-                                <RouterLink v-if="!isAuthenticated" :to="{ name: 'Authentification' }">
-                                    <button type="button">Commandez</button>
-                                </RouterLink>
-                                <div v-else>
-                                    <button type="button" @click="addProductToCart(produit)">Ajouter au panier</button>
-                                </div>
-                            </div>
-                        </div>
-                        <p v-if="produits.length === 0" class="text-center mt-3">Aucun produit trouvé.</p>
-                    </div>
-                </div>
-            </section>
-        </main>
+            <div v-if="isModalOpen" class="modal">
+            <div class="modal-content">
+                <button class="Btn-Traitement"><span class="close" @click="isModalOpen = false">&times;</span></button>
+                <img :src="selectedProduct.image_path ? `http://127.0.0.1:8000/storage/${selectedProduct.image_path}` : '/default-image.jpg'" class="modal-image" />
+                <h3>{{ selectedProduct.name }}</h3>
+                <p>{{ selectedProduct.description }}</p>
+            </div>
+        </div>
+        </section>
+    </main>
 
         <footer id="footer" class="footer dark-background">
             <div class="container footer-top">
@@ -139,6 +131,9 @@ export default {
         const isAuthenticated = ref(false);
         const user = ref(null);
         const cartStore = useCartStore();
+        const isModalOpen = ref(false);
+        const selectedProduct = ref({});
+
 
         // Vérifie si l'utilisateur est authentifié et récupère ses informations
         const checkAuth = () => {
@@ -168,6 +163,12 @@ export default {
             } catch (error) {
                 console.error("Erreur lors de la récupération des produits :", error);
             }
+        };
+
+        const openImageModal = (product) => {
+            console.log("Ouverture du modal pour :", product);
+            selectedProduct.value = product;
+            isModalOpen.value = true;
         };
 
         // Récupère les produits par catégorie
@@ -209,11 +210,149 @@ export default {
             fetchProduitsByCategory,
             addProductToCart,
             userName, 
+            selectedProduct,
+            openImageModal,
+            isModalOpen,
         };
     }
 };
 </script>
 <style scoped>
+
+.Btn-Traitement{
+    background: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 5px;
+    transition: background 0.3s;
+}
+
+.modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    text-align: center;
+}
+
+.modal-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+}
+
+
+.main-container {
+   
+    
+    margin: auto;
+}
+
+.categories-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.category-btn {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.category-btn.active, .category-btn:hover {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 15px;
+    transition: transform 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-image {
+    width: 100%;
+    height: 50%;
+    object-fit: cover;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.product-info {
+    padding: 10px;
+}
+
+.description {
+    font-size: 14px;
+    color: #666;
+}
+
+.price {
+    font-weight: bold;
+    color: #007bff;
+    margin: 10px 0;
+}
+
+.btn-add, .btn-login {
+    background: #28a745;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 5px;
+    transition: background 0.3s;
+}
+
+.btn-add:hover { background: #218838; }
+.btn-login { background: #007bff; }
+.btn-login:hover { background: #0056b3; }
+
+.no-products {
+    text-align: center;
+    color: #888;
+    margin-top: 20px;
+}
 
 .NomUtilisateur{
         color: #1a7c1e;
@@ -259,7 +398,7 @@ export default {
   font-size: 15px;
   font-weight: bold;
   text-decoration: none;
-  padding: 2px;
+  padding: 3px;
   transition: color 0.3s ease;
 }
 

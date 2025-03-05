@@ -191,7 +191,10 @@ export default {
 
 .heade {
   background-color: #1a7c1e;
-}.main {
+  
+}
+
+.main {
   margin-top: 120px;
   padding: 20px;
   background-color: #f8f9fa;
@@ -236,6 +239,10 @@ transition: color 0.3s ease;
 color: #d4edda;
 }
 
+/* .navmenu{
+  padding-left: 10%;
+} */
+
 h5.text-center {
   font-size: 22px;
   font-weight: bold;
@@ -250,7 +257,7 @@ h5.text-center {
 
 ul {
   list-style: none;
-  padding: 0;
+  padding: 10%;
 }
 
 .li_class {
